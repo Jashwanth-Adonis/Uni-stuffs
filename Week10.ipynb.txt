@@ -1,0 +1,380 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyNCjNSCFvGXzRE9NbZIziVb"
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**Apriori Algorithm**"
+      ],
+      "metadata": {
+        "id": "UmarDWgPWpmU"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "KF53lzWzV8LV",
+        "outputId": "4987ad4a-fbc1-41fc-8a09-b20d3168af56"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "      antecedents     consequents  support  confidence      lift\n",
+            "0         (Bread)        (Butter)     0.75    1.000000  1.333333\n",
+            "1        (Butter)         (Bread)     0.75    1.000000  1.333333\n",
+            "2   (Bread, Milk)        (Butter)     0.50    1.000000  1.333333\n",
+            "3  (Butter, Milk)         (Bread)     0.50    1.000000  1.333333\n",
+            "4         (Bread)  (Butter, Milk)     0.50    0.666667  1.333333\n",
+            "5        (Butter)   (Bread, Milk)     0.50    0.666667  1.333333\n"
+          ]
+        }
+      ],
+      "source": [
+        "import pandas as pd\n",
+        "\n",
+        "from mlxtend.preprocessing import TransactionEncoder\n",
+        "\n",
+        "transactions = [\n",
+        "\n",
+        " ['Milk', 'Bread', 'Butter'],\n",
+        "\n",
+        " ['Milk', 'Diaper', 'Beer'],\n",
+        "\n",
+        " ['Bread', 'Butter'],\n",
+        "\n",
+        " ['Milk', 'Bread', 'Butter', 'Eggs']\n",
+        "\n",
+        "]\n",
+        "\n",
+        "te = TransactionEncoder()\n",
+        "\n",
+        "\n",
+        "te_array = te.fit(transactions).transform(transactions)\n",
+        "\n",
+        "df = pd.DataFrame(te_array, columns=te.columns_)\n",
+        "\n",
+        "\n",
+        "from mlxtend.frequent_patterns import apriori, association_rules\n",
+        "\n",
+        "frequent_itemsets = apriori(df, min_support=0.5, use_colnames=True)\n",
+        "\n",
+        "# Generate association rules\n",
+        "rules = association_rules(frequent_itemsets, metric=\"lift\", min_threshold=1)\n",
+        "\n",
+        "print(rules[['antecedents', 'consequents', 'support', 'confidence', 'lift']])"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**FP-Growth Algorithm**"
+      ],
+      "metadata": {
+        "id": "WzW-7CKaWp4D"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
+        "from mlxtend.preprocessing import TransactionEncoder\n",
+        "transactions = [\n",
+        "    ['Milk', 'Bread', 'Butter'],\n",
+        "    ['Milk', 'Diaper', 'Beer'],\n",
+        "    ['Bread', 'Butter'],\n",
+        "    ['Milk', 'Bread', 'Butter', 'Eggs']\n",
+        "]\n",
+        "te = TransactionEncoder()\n",
+        "te_array = te.fit(transactions).transform(transactions)\n",
+        "df = pd.DataFrame(te_array, columns=te.columns_)\n",
+        "from mlxtend.frequent_patterns import fpgrowth\n",
+        "\n",
+        "frequent_itemsets_fp = fpgrowth(df, min_support=0.5, use_colnames=True)\n",
+        "rules_fp = association_rules(frequent_itemsets_fp, metric=\"lift\", min_threshold=1)\n",
+        "print(rules_fp[['antecedents', 'consequents', 'support', 'confidence', 'lift']])\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "-QCA264JXJxT",
+        "outputId": "8ccc1db6-a193-403a-d34f-8d66b3cde4c8"
+      },
+      "execution_count": 2,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "      antecedents     consequents  support  confidence      lift\n",
+            "0         (Bread)        (Butter)     0.75    1.000000  1.333333\n",
+            "1        (Butter)         (Bread)     0.75    1.000000  1.333333\n",
+            "2   (Bread, Milk)        (Butter)     0.50    1.000000  1.333333\n",
+            "3  (Butter, Milk)         (Bread)     0.50    1.000000  1.333333\n",
+            "4         (Bread)  (Butter, Milk)     0.50    0.666667  1.333333\n",
+            "5        (Butter)   (Bread, Milk)     0.50    0.666667  1.333333\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**Implement Association Rule**"
+      ],
+      "metadata": {
+        "id": "2r5WbJYsXPW5"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
+        "from mlxtend.preprocessing import TransactionEncoder\n",
+        "from mlxtend.frequent_patterns import apriori, fpgrowth, association_rules\n",
+        "transactions = [\n",
+        "   \t ['Milk', 'Bread', 'Butter'],\n",
+        "    \t['Milk', 'Diaper', 'Beer'],\n",
+        "   \t ['Bread', 'Butter'],\n",
+        "  \t  ['Milk', 'Bread', 'Butter', 'Eggs']\n",
+        "]\n",
+        "te = TransactionEncoder()\n",
+        "te_array = te.fit(transactions).transform(transactions)\n",
+        "df = pd.DataFrame(te_array, columns=te.columns_)\n",
+        "\n",
+        "\n",
+        "# Apriori\n",
+        "frequent_itemsets_apriori = apriori(df, min_support=0.5, use_colnames=True)\n",
+        "rules_apriori = association_rules(frequent_itemsets_apriori, metric=\"lift\", min_threshold=1)\n",
+        "print(\"\\n=== Apriori Rules ===\")\n",
+        "print(rules_apriori[['antecedents', 'consequents', 'support', 'confidence', 'lift']])\n",
+        "\n",
+        "# FP-Growth\n",
+        "frequent_itemsets_fpgrowth = fpgrowth(df, min_support=0.5, use_colnames=True)\n",
+        "rules_fpgrowth = association_rules(frequent_itemsets_fpgrowth, metric=\"lift\", min_threshold=1)\n",
+        "print(\"\\n=== FP-Growth Rules ===\")\n",
+        "print(rules_fpgrowth[['antecedents', 'consequents', 'support', 'confidence', 'lift']])\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "4uU6jJF-XX1J",
+        "outputId": "cc99c12d-a689-476e-c544-adf9432d8dc6"
+      },
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "=== Apriori Rules ===\n",
+            "      antecedents     consequents  support  confidence      lift\n",
+            "0         (Bread)        (Butter)     0.75    1.000000  1.333333\n",
+            "1        (Butter)         (Bread)     0.75    1.000000  1.333333\n",
+            "2   (Bread, Milk)        (Butter)     0.50    1.000000  1.333333\n",
+            "3  (Butter, Milk)         (Bread)     0.50    1.000000  1.333333\n",
+            "4         (Bread)  (Butter, Milk)     0.50    0.666667  1.333333\n",
+            "5        (Butter)   (Bread, Milk)     0.50    0.666667  1.333333\n",
+            "\n",
+            "=== FP-Growth Rules ===\n",
+            "      antecedents     consequents  support  confidence      lift\n",
+            "0         (Bread)        (Butter)     0.75    1.000000  1.333333\n",
+            "1        (Butter)         (Bread)     0.75    1.000000  1.333333\n",
+            "2   (Bread, Milk)        (Butter)     0.50    1.000000  1.333333\n",
+            "3  (Butter, Milk)         (Bread)     0.50    1.000000  1.333333\n",
+            "4         (Bread)  (Butter, Milk)     0.50    0.666667  1.333333\n",
+            "5        (Butter)   (Bread, Milk)     0.50    0.666667  1.333333\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**Anomaly Detection**\n",
+        "\n",
+        "**1. Z-Score / Statistical Methods**"
+      ],
+      "metadata": {
+        "id": "KnR46gX-WqB9"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np\n",
+        "from scipy.stats import zscore\n",
+        "data = [10, 12, 11, 13, 12, 11, 100]  # 100 is an anomaly\n",
+        "z_scores = zscore(data)\n",
+        "anomalies = [x for x, z in zip(data, z_scores) if abs(z) > 2]\n",
+        "print(anomalies)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "x28jdbN8Xhqm",
+        "outputId": "35641c9c-bc92-42d9-f590-ffe35b23e6d3"
+      },
+      "execution_count": 4,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[100]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**2.Isolation Forest**"
+      ],
+      "metadata": {
+        "id": "EmTVN5AeWqRJ"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.ensemble import IsolationForest\n",
+        "\n",
+        "X = [[10], [12], [11], [13], [100]]  # 100 is an anomaly\n",
+        "clf = IsolationForest(contamination=0.2)\n",
+        "clf.fit(X)\n",
+        "pred = clf.predict(X)\n",
+        "print(pred)  # -1 = anomaly, 1 = normal"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "sfFF7kQhX_y4",
+        "outputId": "2adb3fa3-48c0-4cbe-b9b2-1ee875e2612e"
+      },
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[ 1  1  1  1 -1]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**3.One-Class SVM**"
+      ],
+      "metadata": {
+        "id": "tPAjZ6V_Wqhk"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.svm import OneClassSVM\n",
+        "X = [[10], [12], [11], [13], [100]]\n",
+        "\n",
+        "clf = OneClassSVM(nu=0.1, kernel=\"rbf\", gamma=0.1)\n",
+        "clf.fit(X)\n",
+        "pred = clf.predict(X)\n",
+        "print(pred)  # -1 = anomaly, 1 = normal"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "DACJTJxjYQyT",
+        "outputId": "b7e20f5f-c01d-4327-d0a7-06572d9c322e"
+      },
+      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[-1  1  1  1  1]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**4. Autoencoders (Deep Learning)**"
+      ],
+      "metadata": {
+        "id": "G7yWCHLzYJex"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
+        "from sklearn.ensemble import IsolationForest\n",
+        "data = [[10], [12], [11], [13], [12], [11], [14], [15], [100], [110]]  # 100 and 110 are outliers\n",
+        "df = pd.DataFrame(data, columns=[\"Value\"])\n",
+        "model = IsolationForest(contamination=0.2, random_state=42)\n",
+        "\n",
+        "model.fit(df)\n",
+        "df[\"Anomaly\"] = model.predict(df)\n",
+        "df[\"Anomaly_Label\"] = df[\"Anomaly\"].map({1: \"Normal\", -1: \"Anomaly\"})\n",
+        "print(df)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "YPfXdkGmYaTU",
+        "outputId": "d0a97f5d-cb63-4baf-a60b-3bb27b4d6ff3"
+      },
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "   Value  Anomaly Anomaly_Label\n",
+            "0     10        1        Normal\n",
+            "1     12        1        Normal\n",
+            "2     11        1        Normal\n",
+            "3     13        1        Normal\n",
+            "4     12        1        Normal\n",
+            "5     11        1        Normal\n",
+            "6     14        1        Normal\n",
+            "7     15        1        Normal\n",
+            "8    100       -1       Anomaly\n",
+            "9    110       -1       Anomaly\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
